@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "796992602412",
+    "project_id": "appless2",
+    "storage_bucket": "appless2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:796992602412:android:ee8518623139c868a92c89",
+        "android_client_info": {
+          "package_name": "com.app_less2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "796992602412-jesbo2quo5rkpnrpdmrjv5rn6cav6v3a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2PEF2dpf6rG2ckvfDV1smlb2Yr0BO9aI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "796992602412-jesbo2quo5rkpnrpdmrjv5rn6cav6v3a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
