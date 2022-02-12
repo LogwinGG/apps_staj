@@ -1,23 +1,28 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_const_constructors_in_immutables
 
-import 'package:app_less2/auth_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:app_less2/application/main_bloc.dart';
+import 'package:app_less2/application/main_bloc_event.dart';
+import 'package:app_less2/application/main_bloc_state.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HomeScreen extends StatefulWidget {
-  HomeScreen({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  HomePage({Key? key}) : super(key: key);
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _HomePageState createState() => _HomePageState();
 }
 
 
-class _HomeScreenState extends State<HomeScreen> {
-  AuthService _authService = AuthService();
+class _HomePageState extends State<HomePage> {
+  MainBloc bloc = MainBloc();
 
-  CollectionReference userDataRef = FirebaseFirestore.instance.collection('${FirebaseAuth.instance.currentUser?.uid}');
 
+  @override
+  void initState() {
+    super.initState();
+    bloc.add(GetUserData());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
           MaterialButton(
               child: Text('Logout', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
               onPressed: () {
-                _authService.signOut();
+                bloc.add(SignOut());
                 Navigator.of(context).pushReplacementNamed('/');
               })
         ],
@@ -49,16 +54,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              FutureBuilder(
-                future: userDataRef.get(),
-                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
-
-                  if (snapshot.hasError) Text(snapshot.error.toString());
-                  if (snapshot.connectionState == ConnectionState.waiting) CircularProgressIndicator();
-
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    Map<String, dynamic> data = snapshot.data!.docs[0].data();
-
+              BlocBuilder(
+                bloc: bloc,
+                builder: (BuildContext context, MainBlocState state){
+                  if(state is Loading) return Center(child: CircularProgressIndicator());
+                  if(state is IsError) return Text('Произошла ошибка, проверьте соединение с интернетом', style: TextStyle(color: Colors.redAccent),);
+                  if(state is UserDataState) {
+                    Map<String, dynamic> data = state.userData;
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -68,9 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     );
                   }
-                  return CircularProgressIndicator();;
-                }),
-
+                  return SizedBox();
+              }),
             ],
           ),
         ),

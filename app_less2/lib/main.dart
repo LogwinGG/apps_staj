@@ -1,7 +1,11 @@
-import 'package:app_less2/screens/home_screen.dart';
-import 'package:app_less2/screens/login_screen.dart';
+
+// ignore_for_file: prefer_const_constructors
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+
+import 'presentation/pages/home_page.dart';
+import 'presentation/pages/login_page.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,8 +26,8 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/':(context) => LoginScreen(),
-        '/home':(context) => HomeScreen(),
+        '/':(context) => LoginPage(),
+        '/home':(context) => HomePage(),
       },
     );
   }

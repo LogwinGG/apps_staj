@@ -1,10 +1,12 @@
-// ignore_for_file: prefer_final_fields
+// ignore_for_file: prefer_final_fields, prefer_const_constructors_in_immutables, prefer_const_constructors, curly_braces_in_flow_control_structures
 
-import 'package:app_less2/auth_service.dart';
-import 'package:app_less2/functions/validate_function.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:app_less2/application/main_bloc.dart';
+import 'package:app_less2/application/main_bloc_event.dart';
+import 'package:app_less2/application/main_bloc_state.dart';
+import 'package:app_less2/domain/functions/validate_function.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RegisterForm extends StatefulWidget {
   RegisterForm({Key? key}) : super(key: key);
@@ -17,34 +19,18 @@ class _RegisterFormState extends State<RegisterForm> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController _controllerPassword = TextEditingController();
   TextEditingController _controllerEmail = TextEditingController();
+  bool _isObscureText = true;
 
-  AuthService _authService = AuthService();
+  MainBloc bloc = MainBloc();
 
-
-  void _submit() async {
+  void _submit() {
     if (_formKey.currentState!.validate()) {
+
       _formKey.currentState!.save();
 
-      User? user = await _authService.createUser(_controllerEmail.text, _controllerPassword.text);
-
-
-      CollectionReference userCol = FirebaseFirestore.instance.collection('${user?.uid}');
-      userCol.add({
-        'login': _controllerEmail.text,
-        'password': _controllerPassword.text
-      });
-
-      _formKey.currentState!.reset();
-      setState(() {
-        _isSuccessMessage = true;
-      });
-      if (user != null) Navigator.of(context).pushReplacementNamed('/home');
-
+      bloc.add(CreateUser(email: _controllerEmail.text, password: _controllerPassword.text));
     }
   }
-
-  bool _isObscureText = true;
-  bool _isSuccessMessage = false;
 
   @override
   Widget build(BuildContext context) {
@@ -120,10 +106,21 @@ class _RegisterFormState extends State<RegisterForm> {
             child: const Text('Зарегистрироваться и войти'),
             onPressed: _submit,
           ),
-          if (_isSuccessMessage) const Text('Вы успешно зарегистрировались')
+          BlocBuilder(
+            bloc: bloc,
+            builder: (BuildContext context, MainBlocState state) {
+              if(state is Loading) return CircularProgressIndicator();
+              if (state is IsError) return Text('Произошла ошибка, попробуйте еще раз', style: TextStyle(color: Colors.redAccent),);
+              if(state is UserState) {
+                Future.delayed(Duration(milliseconds: 400), () => Navigator.of(context).pushReplacementNamed('/home'));
+                return Text('Добро пожаловать ');
+              }
+              else  return SizedBox();
+            },
+          ),
+
         ],
       ),
     );
   }
-
 }

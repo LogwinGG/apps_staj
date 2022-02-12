@@ -1,19 +1,17 @@
-
-import 'package:app_less2/components/login_form.dart';
-import 'package:app_less2/components/register_form.dart';
+import 'package:app_less2/presentation/components/login_form.dart';
+import 'package:app_less2/presentation/components/register_form.dart';
 import 'package:flutter/material.dart';
-
 
 enum FormType { login, register }
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginPageState extends State<LoginPage> {
   FormType _formType = FormType.login;
 
   _switchForm() {
@@ -23,14 +21,13 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Center(
             child: Padding(
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.all(8),
           child: Column(
             children: [
               Expanded(

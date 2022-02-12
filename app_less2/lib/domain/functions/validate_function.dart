@@ -7,7 +7,7 @@ r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}
 }
 
 bool validatePassword(String value) {
-  String pattern = r'^((?=.*[a-z])(?=.*[A-Z]).{6,20})$';
+  String pattern = r'^((?=.*[a-z]).{6,20})$';
 
   RegExp regex = RegExp(pattern);
   return (!regex.hasMatch(value)) ? false : true;

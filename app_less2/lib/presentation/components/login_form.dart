@@ -1,8 +1,11 @@
-// ignore_for_file: prefer_const_constructors_in_immutables, prefer_final_fields, prefer_const_constructors
+// ignore_for_file: prefer_const_constructors_in_immutables, prefer_final_fields, prefer_const_constructors, curly_braces_in_flow_control_structures
 
-import 'package:app_less2/auth_service.dart';
+import 'package:app_less2/application/main_bloc.dart';
+import 'package:app_less2/application/main_bloc_event.dart';
+import 'package:app_less2/application/main_bloc_state.dart';
+import 'package:app_less2/domain/functions/validate_function.dart';
 import 'package:flutter/material.dart';
-import 'package:app_less2/functions/validate_function.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginForm extends StatefulWidget {
   LoginForm({Key? key}) : super(key: key);
@@ -17,29 +20,16 @@ class _LoginFormState extends State<LoginForm> {
   final TextEditingController _controllerPassword = TextEditingController();
 
   bool _isObscureText = true;
-  bool _isSuccessMessage = false;
-  bool _isErrorAuth = false;
 
-  AuthService _authService = AuthService();
+  MainBloc bloc = MainBloc();
 
 
-
-  void _submit() async {
+  void _submit() {
     if (_formKey.currentState!.validate()) {
+
       _formKey.currentState!.save();
-      setState(() { _isErrorAuth = false; });
 
-      var user = await _authService.signIn(_controllerEmail.text, _controllerPassword.text);
-
-      if (user != null) {
-        _formKey.currentState!.reset();
-
-        setState(() { _isSuccessMessage = true; });
-
-        Navigator.of(context).pushReplacementNamed('/home');
-      } else {
-        setState(() { _isErrorAuth = true; });
-      }
+       bloc.add( SignIn(email: _controllerEmail.text ,password: _controllerPassword.text) );
     }
   }
 
@@ -87,14 +77,25 @@ class _LoginFormState extends State<LoginForm> {
             obscureText: _isObscureText,
           ),
 
-          _isErrorAuth? Text('Пользователь с таким логином и паролем не найден' ,style: TextStyle(color: Colors.redAccent),): Text(''),
-
           MaterialButton(
             color: Colors.white,
             child: const Text('Войти'),
             onPressed: _submit,
           ),
-          if (_isSuccessMessage) const Text('Добро пожаловать'),
+
+          BlocBuilder(
+            bloc: bloc,
+            builder: (BuildContext context, MainBlocState state) {
+              if (state is IsError) return Text('Пользователь с таким логином и паролем не найден', style: TextStyle(color: Colors.redAccent),);
+              if(state is UserState) {
+                //print(state.user.uid);
+                Future.delayed(Duration(milliseconds: 400), () => Navigator.of(context).pushReplacementNamed('/home'));
+                return Text('Добро пожаловать ');
+              }
+              if(state is Loading) return CircularProgressIndicator();
+              else  return SizedBox();
+            },
+          ),
         ],
       ),
     );
