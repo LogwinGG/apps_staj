@@ -9,57 +9,61 @@ import 'package:app_less2/application/main_bloc_event.dart';
 import 'package:app_less2/application/main_bloc_state.dart';
 
 class MainBloc extends Bloc <MainBlocEvent, MainBlocState> {
-  MainBloc() : super(MainBlocState());
   final AuthService _authService = AuthService();
 
-  @override
-  Stream<MainBlocState> mapEventToState(MainBlocEvent event) async* {
-    if (event is SignIn) {
-      yield Loading();
+  MainBloc() : super(MainBlocState()) {
+    on<SignIn>((event, emit) async {
+      emit(Loading());
       try {
         UserState userState = UserState();
         userState.user = await _authService.signIn(event.email, event.password);
-        if (userState.user == null) yield IsError();
-        yield userState;
+        if (userState.user == null) emit(IsError());
+        emit(userState);
       } catch (_) {
-        yield IsError();
+        emit(IsError());
       }
+    });
 
-    } else if (event is CreateUser) {
-      yield Loading();
+    on<CreateUser>((event, emit) async {
+      emit(Loading());
       try {
         UserState userState = UserState();
-        userState.user = await _authService.createUser(event.email, event.password);
+        userState.user =
+        await _authService.createUser(event.email, event.password);
 
         if (userState.user == null) {
-          yield IsError();
+          emit(IsError());
         } else {
-          CollectionReference userCol = FirebaseFirestore.instance.collection('${userState.user.uid}');
+          CollectionReference userCol = FirebaseFirestore.instance.collection(
+              '${userState.user.uid}');
           userCol.add({
             'login': event.email,
             'password': event.password
           });
         }
-
-        yield userState;
-
+        emit(userState);
       } catch (_) {
-        yield IsError();
+        emit(IsError());
       }
+    });
 
-    } else if (event is SignOut) {
+    on<SignOut>((event, emit) {
       _authService.signOut();
+    });
 
-    } else if (event is GetUserData) {
-      yield Loading();
+    on<GetUserData>((event, emit) async {
+      emit(Loading());
       try {
         UserDataState userDataState = UserDataState();
-        QuerySnapshot userData = await FirebaseFirestore.instance.collection('${_authService.getCurrentUser().uid}').get();
+        QuerySnapshot userData = await FirebaseFirestore.instance.collection(
+            '${_authService
+                .getCurrentUser()
+                .uid}').get();
         userDataState.userData = userData.docs[0].data();
-        yield userDataState;
-      }catch (e){
-        yield IsError();
+        emit(userDataState);
+      } catch (e) {
+        emit(IsError());
       }
-    }
+    });
   }
 }
